@@ -1,10 +1,10 @@
-const User = require('../models/User');
-const Post = require('../models/Post');
-const Follow = require('../models/Follow');
-const jwt = require('jsonwebtoken');
+const User = require("../models/User");
+const Post = require("../models/Post");
+const Follow = require("../models/Follow");
+const jwt = require("jsonwebtoken");
 
 // how long a token lasts before expiring
-const tokenLasts = '365d';
+const tokenLasts = "365d";
 
 exports.apiGetPostsByUsername = async function (req, res) {
   try {
@@ -13,7 +13,7 @@ exports.apiGetPostsByUsername = async function (req, res) {
     //res.header("Cache-Control", "max-age=10").json(posts)
     res.json(posts);
   } catch (e) {
-    res.status(500).send('Sorry, invalid user requested.');
+    res.status(500).send("Sorry, invalid user requested.");
   }
 };
 
@@ -31,7 +31,7 @@ exports.apiMustBeLoggedIn = function (req, res, next) {
     req.apiUser = jwt.verify(req.body.token, process.env.JWTSECRET);
     next();
   } catch (e) {
-    res.status(500).send('Sorry, you must provide a valid token.');
+    res.status(500).send("Sorry, you must provide a valid token.");
   }
 };
 
@@ -105,10 +105,10 @@ exports.apiLogin = function (req, res) {
 
 exports.apiRegister = function (req, res) {
   let user = new User(req.body);
-  console.log(user);
   user
     .register()
     .then(() => {
+      console.log(`it came through`);
       res.json({
         token: jwt.sign(
           {
@@ -133,7 +133,7 @@ exports.apiGetHomeFeed = async function (req, res) {
     let posts = await Post.getFeed(req.apiUser._id);
     res.json(posts);
   } catch (e) {
-    res.status(500).send('Error');
+    res.status(500).send("Error");
   }
 };
 
@@ -167,7 +167,7 @@ exports.profileFollowers = async function (req, res) {
     //res.header("Cache-Control", "max-age=10").json(followers)
     res.json(followers);
   } catch (e) {
-    res.status(500).send('Error');
+    res.status(500).send("Error");
   }
 };
 
@@ -177,6 +177,6 @@ exports.profileFollowing = async function (req, res) {
     //res.header("Cache-Control", "max-age=10").json(following)
     res.json(following);
   } catch (e) {
-    res.status(500).send('Error');
+    res.status(500).send("Error");
   }
 };

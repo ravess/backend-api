@@ -1,10 +1,10 @@
-const postsCollection = require('../db').db().collection('posts');
-const followsCollection = require('../db').db().collection('follows');
-const ObjectID = require('mongodb').ObjectId;
-const User = require('./User');
-const sanitizeHTML = require('sanitize-html');
+const postsCollection = require("../db").db().collection("posts");
+const followsCollection = require("../db").db().collection("follows");
+const ObjectID = require("mongodb").ObjectId;
+const User = require("./User");
+const sanitizeHTML = require("sanitize-html");
 
-postsCollection.createIndex({ title: 'text', body: 'text' });
+postsCollection.createIndex({ title: "text", body: "text" });
 
 let Post = function (data, userid, requestedPostId) {
   this.data = data;
@@ -14,11 +14,11 @@ let Post = function (data, userid, requestedPostId) {
 };
 
 Post.prototype.cleanUp = function () {
-  if (typeof this.data.title != 'string') {
-    this.data.title = '';
+  if (typeof this.data.title != "string") {
+    this.data.title = "";
   }
-  if (typeof this.data.body != 'string') {
-    this.data.body = '';
+  if (typeof this.data.body != "string") {
+    this.data.body = "";
   }
 
   // get rid of any bogus properties
@@ -38,11 +38,11 @@ Post.prototype.cleanUp = function () {
 };
 
 Post.prototype.validate = function () {
-  if (this.data.title == '') {
-    this.errors.push('You must provide a title.');
+  if (this.data.title == "") {
+    this.errors.push("You must provide a title.");
   }
-  if (this.data.body == '') {
-    this.errors.push('You must provide post content.');
+  if (this.data.body == "") {
+    this.errors.push("You must provide post content.");
   }
 };
 
@@ -52,14 +52,13 @@ Post.prototype.create = function () {
     this.validate();
     if (!this.errors.length) {
       // save post into database
-      console.log('this is saving to database');
       postsCollection
         .insertOne(this.data)
         .then((info) => {
           resolve(info.insertedId);
         })
         .catch((e) => {
-          this.errors.push('Please try again later.');
+          this.errors.push("Please try again later.");
           reject(this.errors);
         });
     } else {
@@ -95,9 +94,9 @@ Post.prototype.actuallyUpdate = function () {
         { _id: new ObjectID(this.requestedPostId) },
         { $set: { title: this.data.title, body: this.data.body } }
       );
-      resolve('success');
+      resolve("success");
     } else {
-      resolve('failure');
+      resolve("failure");
     }
   });
 };
@@ -112,10 +111,10 @@ Post.reusablePostQuery = function (
       .concat([
         {
           $lookup: {
-            from: 'users',
-            localField: 'author',
-            foreignField: '_id',
-            as: 'authorDocument',
+            from: "users",
+            localField: "author",
+            foreignField: "_id",
+            as: "authorDocument",
           },
         },
         {
@@ -123,8 +122,8 @@ Post.reusablePostQuery = function (
             title: 1,
             body: 1,
             createdDate: 1,
-            authorId: '$author',
-            author: { $arrayElemAt: ['$authorDocument', 0] },
+            authorId: "$author",
+            author: { $arrayElemAt: ["$authorDocument", 0] },
           },
         },
       ])
@@ -151,7 +150,7 @@ Post.reusablePostQuery = function (
 
 Post.findSingleById = function (id, visitorId) {
   return new Promise(async function (resolve, reject) {
-    if (typeof id != 'string' || !ObjectID.isValid(id)) {
+    if (typeof id != "string" || !ObjectID.isValid(id)) {
       reject();
       return;
     }
@@ -194,11 +193,11 @@ Post.delete = function (postIdToDelete, currentUserId) {
 
 Post.search = function (searchTerm) {
   return new Promise(async (resolve, reject) => {
-    if (typeof searchTerm == 'string') {
+    if (typeof searchTerm == "string") {
       let posts = await Post.reusablePostQuery(
         [{ $match: { $text: { $search: searchTerm } } }],
         undefined,
-        [{ $sort: { score: { $meta: 'textScore' } } }]
+        [{ $sort: { score: { $meta: "textScore" } } }]
       );
       resolve(posts);
     } else {
